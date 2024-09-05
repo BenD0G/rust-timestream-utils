@@ -1,0 +1,22 @@
+[package]
+name = "rust-timestream-utils"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+aws-config = { version = "1.5", features = ["behavior-version-latest"] }
+aws-sdk-timestreamquery = "1.42"
+aws-sdk-timestreamwrite = "1.41"
+chrono = { version = "0.4", features = ["serde"] }
+futures = "0.3"
+rust_decimal = "1.36"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+pretty_assertions = "1.4"
+rust_decimal_macros = "1.36"
+
+[features]
+test-utils = []
