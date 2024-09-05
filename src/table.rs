@@ -31,6 +31,7 @@ pub async fn load_timestream_clients() -> Result<TimestreamClients> {
     })
 }
 
+/// Representation of an existing Timestream table.
 pub struct TimestreamTable<'a> {
     table_name: String,
     db_name: String,

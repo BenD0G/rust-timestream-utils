@@ -29,7 +29,8 @@ impl<'a> Drop for DroppableTable<'a> {
 }
 
 /// Creates a new DroppableTable table with a random name, which is deleted once this object is dropped.
-/// Note that we have 20 years of magnetic store retention.
+/// Note that the table has 20 years of magnetic store retention.
+/// The DB must already exist before calling this function.
 pub async fn make_droppable_table<'a>(
     clients: &'a TimestreamClients,
     db_name: &str,
