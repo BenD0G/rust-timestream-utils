@@ -8,6 +8,8 @@ use chrono::{DateTime, NaiveDate, NaiveDateTime, TimeZone, Utc};
 use futures::future::try_join_all;
 use serde::{de::DeserializeOwned, Deserialize, Deserializer};
 use serde_json::{json, Value};
+use xray_lite::{DaemonClient, SubsegmentContext};
+use xray_lite_aws_sdk::ContextExt as _;
 
 pub struct TimestreamClients {
     pub read_client: ReadClient,
@@ -90,16 +92,28 @@ impl<'a> TimestreamTable<'a> {
     }
 
     /// Query this Timestream table, and deserialize the results into your requested type.
-    pub async fn query_data<T>(&self, query_string: &str) -> Result<Vec<T>>
+    ///
+    /// If you wish to report X-Ray traces, you can pass in an `xray_context` which will be used to intercept the operation.
+    pub async fn query_data<T>(
+        &self,
+        query_string: &str,
+        xray_context: Option<&SubsegmentContext<DaemonClient>>,
+    ) -> Result<Vec<T>>
     where
         T: DeserializeOwned,
     {
-        let query_output = self
+        let mut query_builder = self
             .read_client
             .query()
             .query_string(query_string)
-            .send()
-            .await?;
+            .customize();
+
+        if let Some(xray_context) = xray_context {
+            let interceptor = xray_context.intercept_operation("Timestream", "Query");
+            query_builder = query_builder.interceptor(interceptor);
+        }
+
+        let query_output = query_builder.send().await?;
 
         deserialize_query_output(&query_output).with_context(|| {
             format!(
