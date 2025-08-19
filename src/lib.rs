@@ -8,4 +8,4 @@ pub use table::{
 };
 
 #[cfg(feature = "test-utils")]
-pub use test_utils::make_droppable_table;
+pub use test_utils::{make_droppable_table, DroppableTable};
